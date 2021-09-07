@@ -1,4 +1,5 @@
 # dependencies
+/mflix-frontend/node_modules
 /node_modules
 
 # production
@@ -12,6 +13,7 @@
 /.env.production.local
 /.eslintcache
 
+/mflix-frontend/.env
 .env
 .DS_Store
 

@@ -1,20 +1,20 @@
-import { ObjectId } from "bson"
+import { ObjectId } from 'bson';
 
-let comments
+let comments;
 
 export default class CommentsDAO {
-  static async injectDB(conn) {
-    if (comments) {
-      return
-    }
-    try {
-      comments = await conn.db(process.env.MFLIX_NS).collection("comments")
-    } catch (e) {
-      console.error(`Unable to establish collection handles in userDAO: ${e}`)
-    }
-  }
+	static async injectDB(conn) {
+		if (comments) {
+			return;
+		}
+		try {
+			comments = await conn.db(process.env.MFLIX_NS).collection('comments');
+		} catch (e) {
+			console.error(`Unable to establish collection handles in userDAO: ${e}`);
+		}
+	}
 
-  /**
+	/**
   Ticket: Create/Update Comments
 
   For this ticket, you will need to implement the following two methods:
@@ -26,7 +26,7 @@ export default class CommentsDAO {
   to better understand the task.
   */
 
-  /**
+	/**
    * Inserts a comment into the `comments` collection, with the following fields:
 
      - "name", the name of the user posting the comment
@@ -41,48 +41,48 @@ export default class CommentsDAO {
    * @param {string} date - The date on which the comment was posted.
    * @returns {DAOResponse} Returns an object with either DB response or "error"
    */
-  static async addComment(movieId, user, comment, date) {
-    try {
-      // TODO Ticket: Create/Update Comments
-      // Construct the comment document to be inserted into MongoDB.
-      const commentDoc = { someField: "someValue" }
+	static async addComment(movieId, user, comment, date) {
+		try {
+			// TODO Ticket: Create/Update Comments
+			// Construct the comment document to be inserted into MongoDB.
+			const commentDoc = { someField: 'someValue' };
 
-      return await comments.insertOne(commentDoc)
-    } catch (e) {
-      console.error(`Unable to post comment: ${e}`)
-      return { error: e }
-    }
-  }
+			return await comments.insertOne(commentDoc);
+		} catch (e) {
+			console.error(`Unable to post comment: ${e}`);
+			return { error: e };
+		}
+	}
 
-  /**
-   * Updates the comment in the comment collection. Queries for the comment
-   * based by both comment _id field as well as the email field to doubly ensure
-   * the user has permission to edit this comment.
-   * @param {string} commentId - The _id of the comment to update.
-   * @param {string} userEmail - The email of the user who owns the comment.
-   * @param {string} text - The updated text of the comment.
-   * @param {string} date - The date on which the comment was updated.
-   * @returns {DAOResponse} Returns an object with either DB response or "error"
-   */
-  static async updateComment(commentId, userEmail, text, date) {
-    try {
-      // TODO Ticket: Create/Update Comments
-      // Use the commentId and userEmail to select the proper comment, then
-      // update the "text" and "date" fields of the selected comment.
-      const updateResponse = await comments.updateOne(
-        { someField: "someValue" },
-        { $set: { someOtherField: "someOtherValue" } },
-      )
+	/**
+	 * Updates the comment in the comment collection. Queries for the comment
+	 * based by both comment _id field as well as the email field to doubly ensure
+	 * the user has permission to edit this comment.
+	 * @param {string} commentId - The _id of the comment to update.
+	 * @param {string} userEmail - The email of the user who owns the comment.
+	 * @param {string} text - The updated text of the comment.
+	 * @param {string} date - The date on which the comment was updated.
+	 * @returns {DAOResponse} Returns an object with either DB response or "error"
+	 */
+	static async updateComment(commentId, userEmail, text, date) {
+		try {
+			// TODO Ticket: Create/Update Comments
+			// Use the commentId and userEmail to select the proper comment, then
+			// update the "text" and "date" fields of the selected comment.
+			const updateResponse = await comments.updateOne(
+				{ someField: 'someValue' },
+				{ $set: { someOtherField: 'someOtherValue' } },
+			);
 
-      return updateResponse
-    } catch (e) {
-      console.error(`Unable to update comment: ${e}`)
-      return { error: e }
-    }
-  }
+			return updateResponse;
+		} catch (e) {
+			console.error(`Unable to update comment: ${e}`);
+			return { error: e };
+		}
+	}
 
-  static async deleteComment(commentId, userEmail) {
-    /**
+	static async deleteComment(commentId, userEmail) {
+		/**
     Ticket: Delete Comments
 
     Implement the deleteOne() call in this method.
@@ -91,47 +91,47 @@ export default class CommentsDAO {
     comments, but not anyone else's comments.
     */
 
-    try {
-      // TODO Ticket: Delete Comments
-      // Use the userEmail and commentId to delete the proper comment.
-      const deleteResponse = await comments.deleteOne({
-        _id: ObjectId(commentId),
-      })
+		try {
+			// TODO Ticket: Delete Comments
+			// Use the userEmail and commentId to delete the proper comment.
+			const deleteResponse = await comments.deleteOne({
+				_id: ObjectId(commentId),
+			});
 
-      return deleteResponse
-    } catch (e) {
-      console.error(`Unable to delete comment: ${e}`)
-      return { error: e }
-    }
-  }
+			return deleteResponse;
+		} catch (e) {
+			console.error(`Unable to delete comment: ${e}`);
+			return { error: e };
+		}
+	}
 
-  static async mostActiveCommenters() {
-    /**
+	static async mostActiveCommenters() {
+		/**
     Ticket: User Report
 
     Build a pipeline that returns the 20 most frequent commenters on the MFlix
     site. You can do this by counting the number of occurrences of a user's
     email in the `comments` collection.
     */
-    try {
-      // TODO Ticket: User Report
-      // Return the 20 users who have commented the most on MFlix.
-      const pipeline = []
+		try {
+			// TODO Ticket: User Report
+			// Return the 20 users who have commented the most on MFlix.
+			const pipeline = [];
 
-      // TODO Ticket: User Report
-      // Use a more durable Read Concern here to make sure this data is not stale.
-      const readConcern = comments.readConcern
+			// TODO Ticket: User Report
+			// Use a more durable Read Concern here to make sure this data is not stale.
+			const readConcern = comments.readConcern;
 
-      const aggregateResult = await comments.aggregate(pipeline, {
-        readConcern,
-      })
+			const aggregateResult = await comments.aggregate(pipeline, {
+				readConcern,
+			});
 
-      return await aggregateResult.toArray()
-    } catch (e) {
-      console.error(`Unable to retrieve most active commenters: ${e}`)
-      return { error: e }
-    }
-  }
+			return await aggregateResult.toArray();
+		} catch (e) {
+			console.error(`Unable to retrieve most active commenters: ${e}`);
+			return { error: e };
+		}
+	}
 }
 
 /**
