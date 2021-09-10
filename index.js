@@ -1,7 +1,7 @@
 // need to
 // npm install --legacy-peer-deps
 
-require("@babel/register")
-require("dotenv").config()
+require('@babel/register');
+require('dotenv').config();
 
-exports = module.exports = require("./src")
+exports = module.exports = require('./src');
