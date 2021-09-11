@@ -64,7 +64,12 @@ export default class UsersDAO {
 			// Use a more durable Write Concern for this operation.
 			// await users.insertOne({ someField: 'someValue' });
 			// await users.insertOne(userInfo);
-			await users.insertOne({ name, email, password }, { w: 'majority' }); //cannot pass the original object as the method would mutate it
+			const inserted = await users.insertOne(
+				{ name, email, password },
+				{ w: 'majority' },
+			); //cannot pass the original object as the method would mutate it
+			// console.log({ inserted });
+
 			return { success: true };
 		} catch (e) {
 			if (String(e).startsWith('MongoError: E11000 duplicate key error')) {
@@ -141,15 +146,15 @@ export default class UsersDAO {
 	 * @returns {DAOResponse} Returns either a "success" or an "error" Object
 	 */
 	static async deleteUser(email) {
-		console.log({ email });
+		// console.log({ email });
 		try {
 			const userDelete = await users.deleteOne({ email });
-			console.log({ userDelete });
+			// console.log({ userDelete });
 			const sessionDelete = await sessions.deleteOne({ user_id: email });
-			console.log({ sessionDelete });
+			// console.log({ sessionDelete });
 			const user = await this.getUser(email);
 			const session = await this.getUserSession(email);
-			console.log({ user, session });
+			// console.log({ user, session });
 
 			if (!(await this.getUser(email)) && !(await this.getUserSession(email))) {
 				return { success: true };
@@ -181,12 +186,20 @@ export default class UsersDAO {
 
 			preferences = preferences || {};
 
+			// console.log({ preferences });
+
 			// TODO Ticket: User Preferences
 			// Use the data in "preferences" to update the user's preferences.
+			// const updateResponse = await users.updateOne(
+			// 	{ someField: someValue },
+			// 	{ $set: { someOtherField: someOtherValue } },
+			// );
 			const updateResponse = await users.updateOne(
-				{ someField: someValue },
-				{ $set: { someOtherField: someOtherValue } },
+				{ email },
+				{ $set: { preferences } },
+				// { upsert: true },
 			);
+			// console.log({ updateResponse });
 
 			if (updateResponse.matchedCount === 0) {
 				return { error: 'No user found with that email' };
