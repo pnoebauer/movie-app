@@ -29,7 +29,7 @@ require('dotenv').config();
 		// a projection is not required, but may help reduce the amount of data sent
 		// over the wire!
 		const predicate = { lastupdated: { $type: 'string' } };
-		const projection = {};
+		const projection = { lastupdated: 1 };
 		const cursor = await mflix
 			.collection('movies')
 			.find(predicate, projection)
