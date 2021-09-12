@@ -124,17 +124,38 @@ export default class CommentsDAO {
 		try {
 			// TODO Ticket: User Report
 			// Return the 20 users who have commented the most on MFlix.
-			const pipeline = [];
+			const pipeline = [
+				{
+					$group: {
+						_id: '$email',
+						count: {
+							$sum: 1,
+						},
+					},
+				},
+				{
+					$sort: {
+						count: -1,
+					},
+				},
+				{
+					$limit: 20,
+				},
+			];
 
 			// TODO Ticket: User Report
 			// Use a more durable Read Concern here to make sure this data is not stale.
-			const readConcern = comments.readConcern;
+			// const readConcern = comments.readConcern;
+			const readConcern = 'majority';
 
 			const aggregateResult = await comments.aggregate(pipeline, {
 				readConcern,
 			});
 
-			return await aggregateResult.toArray();
+			const mostActiveCommentersArr = await aggregateResult.toArray();
+			// console.log({ mostActiveCommentersArr });
+
+			return mostActiveCommentersArr;
 		} catch (e) {
 			console.error(`Unable to retrieve most active commenters: ${e}`);
 			return { error: e };
