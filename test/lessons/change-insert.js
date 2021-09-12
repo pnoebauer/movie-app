@@ -1,13 +1,14 @@
-const MongoClient = require("mongodb").MongoClient
-const faker = require("faker")
-require("dotenv").config()
-;(async function() {
-  const client = await MongoClient.connect(
-    process.env.MFLIX_DB_URI,
-    { wtimeout: 2500, poolSize: 50, useNewUrlParser: true },
-  )
+const MongoClient = require('mongodb').MongoClient;
+const faker = require('faker');
+require('dotenv').config();
+(async function() {
+	const client = await MongoClient.connect(process.env.MFLIX_DB_URI, {
+		wtimeout: 2500,
+		poolSize: 50,
+		useNewUrlParser: true,
+	});
 
-  /**
+	/**
     In this lesson, we're going to use change streams to track real-time
     changes to the data that our application's using.
 
@@ -16,8 +17,8 @@ require("dotenv").config()
     start by focusing on inserts.
   */
 
-  try {
-    /**
+	try {
+		/**
       A change stream contains change events for different database operations
       that result in some change to the data. These could be inserts, updates or
       deletes.
@@ -37,10 +38,10 @@ require("dotenv").config()
       existing document.
     */
 
-    const bankDB = await client.db("bankDB")
-    const loans_collection = await bankDB.collection("loans")
+		const bankDB = await client.db('bankDB');
+		const loans_collection = await bankDB.collection('loans');
 
-    /**
+		/**
       To open a change stream against a specific collection, we call the
       collection method .watch(). This method takes an optional pipeline
       parameter, which we can use to transform or filter out change events.
@@ -53,10 +54,10 @@ require("dotenv").config()
       event document in our cursor.
     */
 
-    const emptyPipeline = []
-    const changeStream = loans_collection.watch(emptyPipeline)
+		const emptyPipeline = [];
+		const changeStream = loans_collection.watch(emptyPipeline);
 
-    /**
+		/**
       Using .on(), we can tell the change stream to do something for each change
       event in the cursor.
 
@@ -65,82 +66,82 @@ require("dotenv").config()
       email alert.
     */
 
-    changeStream.on("change", change => {
-      console.log("change", change)
-    })
+		changeStream.on('change', change => {
+			console.log('change', change);
+		});
 
-    /**
+		/**
       In addition to "change", .on() also takes the following event types:
       "close", "end", and "error". We can use these event types to alert us
       for different reasons.
     */
 
-    // populate loans_collection with data
-    await insertDocs(loans_collection)
+		// populate loans_collection with data
+		await insertDocs(loans_collection);
 
-    // close the change stream when we're done
-    changeStream.close()
+		// close the change stream when we're done
+		changeStream.close();
 
-    // drop loans_collection
-    loans_collection.drop()
+		// drop loans_collection
+		loans_collection.drop();
 
-    // exit the program
-    process.exit(1)
-  } catch (e) {
-    console.log(e)
-  }
+		// exit the program
+		process.exit(1);
+	} catch (e) {
+		console.log(e);
+	}
 
-  /**
+	/**
     In this example, the namespace bankDB.loans stores a document for each loan
     issued by the bank. Our change stream is going to track every change made to
     this collection.
    */
 
-  // insert documents into `bankDB.loans`
-  async function insertDocs(collection) {
-    let amounts = [2000, 400, 5000, 1200, 350, 10000, 3500, 800]
-    let borrowerNames = [
-      "Manjunath",
-      "Hamsa",
-      "Gayatri",
-      "Tanvi",
-      "Aditya",
-      "Akash",
-      "Arjun",
-      "Divya",
-    ]
+	// insert documents into `bankDB.loans`
+	async function insertDocs(collection) {
+		let amounts = [2000, 400, 5000, 1200, 350, 10000, 3500, 800];
+		let borrowerNames = [
+			'Manjunath',
+			'Hamsa',
+			'Gayatri',
+			'Tanvi',
+			'Aditya',
+			'Akash',
+			'Arjun',
+			'Divya',
+		];
 
-    // get a random date - this will be each loan's due date
-    function getRandomDueDate() {
-      let startDate = new Date()
-      let endDate = new Date(2030, 0, 1)
-      return new Date(
-        startDate.getTime() +
-          Math.random() * (endDate.getTime() - startDate.getTime()),
-      )
-    }
+		// get a random date - this will be each loan's due date
+		function getRandomDueDate() {
+			let startDate = new Date();
+			let endDate = new Date(2030, 0, 1);
+			return new Date(
+				startDate.getTime() +
+					Math.random() * (endDate.getTime() - startDate.getTime()),
+			);
+		}
 
-    // sleep for a given number of ms
-    async function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
+		// sleep for a given number of ms
+		async function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
 
-    // use .map() to create the loan documents
-    let docs = amounts.map((amount, idx) => ({
-      amount,
-      borrower: borrowerNames[idx],
-      dueDate: getRandomDueDate(),
-    }))
+		// use .map() to create the loan documents
+		let docs = amounts.map((amount, idx) => ({
+			amount,
+			borrower: borrowerNames[idx],
+			dueDate: getRandomDueDate(),
+		}));
 
-    // insert the loan documents
-    for (var idx = 0; idx < docs.length; idx++) {
-      let doc = docs[idx]
-      let insertResult = collection.insertOne(doc)
-      await sleep(1000)
-    }
-  }
+		// insert the loan documents
+		for (var idx = 0; idx < docs.length; idx++) {
+			let doc = docs[idx];
+			let insertResult = collection.insertOne(doc);
+			await sleep(1000);
+		}
+	}
 
-  /**
+	/**
     Now that we've opened a change stream on the "loans" collection, we should
     see any new loans that come in, as well as any changes made to existing
     loans.
@@ -156,4 +157,4 @@ require("dotenv").config()
     this, the change stream cursor will capture any change, regardless of
     context. We might want to specify which changes we actually care about.
   */
-})()
+})();
