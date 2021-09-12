@@ -319,12 +319,42 @@ export default class MoviesDAO {
 			// Implement the required pipeline.
 			const pipeline = [
 				{
+					// (1) return movie with id
 					$match: {
 						_id: ObjectId(id),
 					},
 				},
+				{
+					// (2) join the comments collection
+					$lookup: {
+						from: 'comments',
+						// store the id of the movie under $_id (needed as we are now in the comments collections and won't be able to access movies anymore)
+						let: {
+							id: '$_id',
+						},
+						pipeline: [
+							{
+								// match all comments with movie_id === $_id
+								$match: {
+									$expr: {
+										$eq: ['$movie_id', '$$id'],
+									},
+								},
+							},
+							{
+								// sort all matched comments in descending date order
+								$sort: {
+									date: -1,
+								},
+							},
+						],
+						as: 'comments',
+					},
+				},
 			];
-			return await movies.aggregate(pipeline).next();
+			const addedMovieComments = await movies.aggregate(pipeline).next();
+			// console.log({ addedMovieComments });
+			return addedMovieComments;
 		} catch (e) {
 			/**
       Ticket: Error Handling
