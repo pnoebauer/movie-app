@@ -1,16 +1,16 @@
-import MoviesDAO from "../src/dao/moviesDAO"
-import { ObjectId } from "mongodb"
+import MoviesDAO from '../src/dao/moviesDAO';
+import { ObjectId } from 'mongodb';
 
-describe("Migration", () => {
-  beforeAll(async () => {
-    await MoviesDAO.injectDB(global.mflixClient)
-  })
+describe('Migration', () => {
+	beforeAll(async () => {
+		await MoviesDAO.injectDB(global.mflixClient);
+	});
 
-  test("migration", async () => {
-    const movie = await MoviesDAO.movies.findOne({
-      _id: ObjectId("573a1391f29313caabcd82da"),
-      lastupdated: { $type: "date" },
-    })
-    expect(movie).not.toBeNull()
-  })
-})
+	test('migration', async () => {
+		const movie = await MoviesDAO.movies.findOne({
+			_id: ObjectId('573a1391f29313caabcd82da'),
+			lastupdated: { $type: 'date' },
+		});
+		expect(movie).not.toBeNull();
+	});
+});
